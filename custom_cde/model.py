@@ -433,6 +433,33 @@ class ElectrochemicalPotential(BaseModel):
     temperature = StringType(contextual=True)
     temperature_units = StringType(contextual=True)
     apparatus = StringType(contextual=True)
+    
+    
+class HOMOLevel(BaseModel):
+    """
+    The Highest Occupied Molecular Orbital energy level
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType()
+    
+    
+class LUMOLevel(BaseModel):
+    """
+    The Lowest Unoccupied Molecular Orbital energy level
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType()
+    
+    
+class BandGap(BaseModel):
+    """
+    The band gap energy
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType()
 
 
 class Compound(BaseModel):
@@ -447,6 +474,9 @@ class Compound(BaseModel):
     quantum_yields = ListType(ModelType(QuantumYield))
     fluorescence_lifetimes = ListType(ModelType(FluorescenceLifetime))
     electrochemical_potentials = ListType(ModelType(ElectrochemicalPotential))
+    HOMO_level = ListType(ModelType(HOMOLevel))
+    LUMO_level = ListType(ModelType(LUMOLevel))
+    band_gap = ListType(ModelType(BandGap))
 
     def merge(self, other):
         """Merge data from another Compound into this Compound."""

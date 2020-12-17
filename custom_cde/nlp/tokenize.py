@@ -680,7 +680,7 @@ class ChemWordTokenizer(WordTokenizer):
                     # If preceding is -, split around -> unless in chemical name
                     if not text == '->' and not self._is_saccharide_arrow(before[:-1], after):
                         return self._split_span(span, i-1, 2)
-            elif char is '→' and not self._is_saccharide_arrow(before, after):
+            elif char == '→' and not self._is_saccharide_arrow(before, after):
                 # TODO: 'is' should be '=='... this never splits!?
                 # Split around → unless in chemical name
                 return self._split_span(span, i, 1)

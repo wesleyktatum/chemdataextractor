@@ -14,8 +14,8 @@ from __future__ import unicode_literals
 import logging
 import re
 
-from chemdataextractor.parse.cem import cem, chemical_label, lenient_chemical_label, solvent_name
-from chemdataextractor.parse.common import lbrct, dt, rbrct, hyphen
+from .cem import cem, chemical_label, lenient_chemical_label, solvent_name
+from .common import lbrct, dt, rbrct, hyphen
 from ..utils import first
 from ..model import Compound, GlassTransition 
 from .actions import merge, join
