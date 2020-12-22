@@ -18,19 +18,18 @@ from .cem import cem, chemical_label, lenient_chemical_label, solvent_name
 from .common import lbrct, dt, rbrct, hyphen
 from ..utils import first
 from ..model import Compound, HOMOLevel
-from .actions import merge, join
+from .actions import merge, join, fix_whitespace
 from .base import BaseParser
 from .elements import W, I, R, Optional, Any, OneOrMore, Not, ZeroOrMore
 
 log = logging.getLogger(__name__)
 
-homo_specifier = R('(^HOMO$|HOMO|HOMO level|HOMO energy|HOMO energy level)').hide()
+homo_specifier = (I('^HOMO$') | (Optional(lbrct) + (I('EHOMO') | I('E_HOMO')) + Optional(rbrct)) | (I('HOMO') + Optional(I('energy')) + Optional(I('level'))))('homo').add_action(merge)
 
 #keyword matching for phrases that trigger value scraping
 prefix = (Optional(Optional('has') + Optional(I('a') | I('an')))).hide() + \
          (Optional(I('the'))).hide() + \
-         Optional(homo_specifier) + \
-         (Optional(lbrct) + Optional(I('EHOMO') | I('E_HOMO')) + Optional(rbrct)) + \
+         homo_specifier + \
          (Optional(I('of') | I('=') | I('equal to') | I('is') | I('is equal to'))).hide() + \
          (Optional(I('in') + I('the') + I('range') + Optional(I('of')) | I('about') | ('around') | I('ca') | I('ca.'))).hide()
 

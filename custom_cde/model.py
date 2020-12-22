@@ -441,7 +441,8 @@ class HOMOLevel(BaseModel):
     """
     #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
     value = StringType()
-    units = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
     
     
 class LUMOLevel(BaseModel):
@@ -450,7 +451,8 @@ class LUMOLevel(BaseModel):
     """
     #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
     value = StringType()
-    units = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
     
     
 class BandGap(BaseModel):
@@ -459,7 +461,17 @@ class BandGap(BaseModel):
     """
     #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
     value = StringType()
-    units = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
+
+class FermiEnergy(BaseModel):
+    """
+    The Fermi energy level
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
 
 
 class Compound(BaseModel):
@@ -477,6 +489,7 @@ class Compound(BaseModel):
     HOMO_level = ListType(ModelType(HOMOLevel))
     LUMO_level = ListType(ModelType(LUMOLevel))
     band_gap = ListType(ModelType(BandGap))
+    fermi_energy = ListType(ModelType(FermiEnergy))
 
     def merge(self, other):
         """Merge data from another Compound into this Compound."""

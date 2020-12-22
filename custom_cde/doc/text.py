@@ -30,6 +30,7 @@ from ..parse.uvvis import UvvisParser
 from ..parse.homo import HOMOParser
 from ..parse.lumo import LUMOParser
 from ..parse.band_gap import BandGapParser
+from ..parse.fermi_energy import FermiEnergyParser
 from ..nlp.lexicon import ChemLexicon
 from ..nlp.cem import CemTagger, IGNORE_PREFIX, IGNORE_SUFFIX, SPECIALS, SPLITS
 from ..nlp.abbrev import ChemAbbreviationDetector
@@ -269,7 +270,7 @@ class Heading(Text):
 
 class Paragraph(Text):
 
-    parsers = [CompoundParser(), ChemicalLabelParser(), NmrParser(), IrParser(), UvvisParser(), MpParser(), TgParser(), HOMOParser(), LUMOParser(), BandGapParser(), ContextParser()]
+    parsers = [CompoundParser(), ChemicalLabelParser(), NmrParser(), IrParser(), UvvisParser(), MpParser(), TgParser(), HOMOParser(), LUMOParser(), BandGapParser(), FermiEnergyParser(), ContextParser()]
 
     def _repr_html_(self):
         return '<p class="cde-paragraph">' + self.text + '</p>'
