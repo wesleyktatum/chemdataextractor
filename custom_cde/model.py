@@ -433,7 +433,10 @@ class ElectrochemicalPotential(BaseModel):
     temperature = StringType(contextual=True)
     temperature_units = StringType(contextual=True)
     apparatus = StringType(contextual=True)
-    
+
+#################################################################
+###################### Custom-CDE additions #####################
+#################################################################
     
 class HOMOLevel(BaseModel):
     """
@@ -474,6 +477,57 @@ class FermiEnergy(BaseModel):
 #     apparatus = StringType(contextual=True)
 
 
+class BoilingPoint(BaseModel):
+    """
+    The Boiling point temperature
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
+
+
+class CorrosionInhibition(BaseModel):
+    """
+    The corrosion inhibition efficiency
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
+
+
+class FusionEnthalpy(BaseModel):
+    """
+    The enthalpy of fusion (aka melting or crystallization)
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
+
+
+class VaporizationEnthalpy(BaseModel):
+    """
+    The enthalpy of vaporization
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
+
+
+class SublimationEnthalpy(BaseModel):
+    """
+    The enthalpy of sublimation
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
+
+###################################################################
+
 class Compound(BaseModel):
     names = ListType(StringType())
     labels = ListType(StringType())
@@ -490,6 +544,11 @@ class Compound(BaseModel):
     LUMO_level = ListType(ModelType(LUMOLevel))
     band_gap = ListType(ModelType(BandGap))
     fermi_energy = ListType(ModelType(FermiEnergy))
+    boiling_point = ListType(ModelType(BoilingPoint))
+    corrosion_inhibition = ListType(ModelType(CorrosionInhibition))
+    enthalpy_of_fusion = ListType(ModelType(FusionEnthalpy))
+    enthalpy_of_vaporization = ListType(ModelType(VaporizationEnthalpy))
+    enthalpy_of_sublimation = ListType(ModelType(SublimationEnthalpy))
 
     def merge(self, other):
         """Merge data from another Compound into this Compound."""

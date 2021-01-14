@@ -22,6 +22,7 @@ from ..model import ModelList
 from ..parse.context import ContextParser
 from ..parse.cem import ChemicalLabelParser, CompoundHeadingParser, CompoundParser, chemical_name
 from ..parse.table import CaptionContextParser
+
 from ..parse.ir import IrParser
 from ..parse.mp import MpParser
 from ..parse.tg import TgParser
@@ -31,6 +32,12 @@ from ..parse.homo import HOMOParser
 from ..parse.lumo import LUMOParser
 from ..parse.band_gap import BandGapParser
 from ..parse.fermi_energy import FermiEnergyParser
+from ..parse.boiling_point import BoilingPointParser
+from ..parse.corrosion_inhibition import CorrosionInhibitionParser
+from ..parse.enthalpy_of_fusion import FusionEnthalpyParser
+from ..parse.enthalpy_of_vaporization import VaporizationEnthalpyParser
+from ..parse.enthalpy_of_sublimation import SublimationEnthalpyParser
+
 from ..nlp.lexicon import ChemLexicon
 from ..nlp.cem import CemTagger, IGNORE_PREFIX, IGNORE_SUFFIX, SPECIALS, SPLITS
 from ..nlp.abbrev import ChemAbbreviationDetector
@@ -270,7 +277,11 @@ class Heading(Text):
 
 class Paragraph(Text):
 
-    parsers = [CompoundParser(), ChemicalLabelParser(), NmrParser(), IrParser(), UvvisParser(), MpParser(), TgParser(), HOMOParser(), LUMOParser(), BandGapParser(), FermiEnergyParser(), ContextParser()]
+    parsers = [CompoundParser(), ChemicalLabelParser(), NmrParser(), IrParser(), UvvisParser(),
+               MpParser(), TgParser(), HOMOParser(), LUMOParser(), BandGapParser(),
+               FermiEnergyParser(), BoilingPointParser(), CorrosionInhibitionParser(),
+               FusionEnthalpyParser(), VaporizationEnthalpyParser(), SublimationEnthalpyParser(),
+               ContextParser()]
 
     def _repr_html_(self):
         return '<p class="cde-paragraph">' + self.text + '</p>'
