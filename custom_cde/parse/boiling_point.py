@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-chemdataextractor.parse.tg
+chemdataextractor.parse.boiling_point
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 boiling point (Tb) parser.
@@ -30,7 +30,7 @@ boiling_point_specifier = (I('^Tb$') | (Optional(lbrct) + (I('Tb') | I('T_b') | 
 prefix = (Optional(Optional('has') + Optional(I('a') | I('an')))).hide() + \
          (Optional(I('the'))).hide() + \
          boiling_point_specifier + \
-         (Optional(I('of') | I('=') | I('equal to') | I('is') | I('is equal to')) | I('was found to be')).hide() + \
+         (Optional(I('of') | I('=') | I('equal to') | (I('is') + Optional(I('between'))) | I('is equal to')) | I('was found to be')).hide() + \
          (Optional(I('in') + I('the') + I('range') + Optional(I('of')) | I('about') | ('around') | I('ca') | I('ca.'))).hide()
 
 #generic list of delimiters
@@ -44,7 +44,7 @@ joined_range = R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?[\-––-−~∼˜]\d+(\.\d
 
 spaced_range = (R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') + Optional(units).hide() +(R('^[\-±–−~∼˜]$') + R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') | R('^[\+\-–−]\d+(\.\d+)?(\(\d\))?$')))('value').add_action(merge)
 
-to_range = (R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') + Optional(units).hide() + (I('to') + R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') | R('^[\+\-–−]\d+(\.\d+)?(\(\d\))?$')))('value').add_action(join)
+to_range = (R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') + Optional(units).hide() + ((I('to') | I('and')) + R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') | R('^[\+\-–−]\d+(\.\d+)?(\(\d\))?$')))('value').add_action(join)
 
 #ranged instances
 boiling_point_range = (Optional(R('^[\-–−]$')) + (joined_range | spaced_range | to_range))('value').add_action(merge)

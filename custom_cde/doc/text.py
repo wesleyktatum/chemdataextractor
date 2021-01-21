@@ -37,6 +37,10 @@ from ..parse.corrosion_inhibition import CorrosionInhibitionParser
 from ..parse.enthalpy_of_fusion import FusionEnthalpyParser
 from ..parse.enthalpy_of_vaporization import VaporizationEnthalpyParser
 from ..parse.enthalpy_of_sublimation import SublimationEnthalpyParser
+from ..parse.M_n import NumAvgMolecularWeightParser
+from ..parse.M_w import WeightAvgMolecularWeightParser
+from ..parse.dispersity import DispersityParser
+from ..parse.modulus import ModulusParser
 
 from ..nlp.lexicon import ChemLexicon
 from ..nlp.cem import CemTagger, IGNORE_PREFIX, IGNORE_SUFFIX, SPECIALS, SPLITS
@@ -281,6 +285,8 @@ class Paragraph(Text):
                MpParser(), TgParser(), HOMOParser(), LUMOParser(), BandGapParser(),
                FermiEnergyParser(), BoilingPointParser(), CorrosionInhibitionParser(),
                FusionEnthalpyParser(), VaporizationEnthalpyParser(), SublimationEnthalpyParser(),
+               NumAvgMolecularWeightParser(), WeightAvgMolecularWeightParser(), DispersityParser(),
+               ModulusParser(),
                ContextParser()]
 
     def _repr_html_(self):

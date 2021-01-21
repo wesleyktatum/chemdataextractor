@@ -526,6 +526,46 @@ class SublimationEnthalpy(BaseModel):
     units = StringType(contextual=True)
 #     apparatus = StringType(contextual=True)
 
+
+class NumAvgMolecularWeight(BaseModel):
+    """
+    The number averaged molecular weight
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
+
+
+class WeightAvgMolecularWeight(BaseModel):
+    """
+    The weight averaged molecular weight
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
+
+
+class Dispersity(BaseModel):
+    """
+    The dispersity or polydispersity index 
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
+
+
+class Modulus(BaseModel):
+    """
+    The Young's modulus, or elastic modulus 
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
+
 ###################################################################
 
 class Compound(BaseModel):
@@ -540,6 +580,7 @@ class Compound(BaseModel):
     quantum_yields = ListType(ModelType(QuantumYield))
     fluorescence_lifetimes = ListType(ModelType(FluorescenceLifetime))
     electrochemical_potentials = ListType(ModelType(ElectrochemicalPotential))
+    
     HOMO_level = ListType(ModelType(HOMOLevel))
     LUMO_level = ListType(ModelType(LUMOLevel))
     band_gap = ListType(ModelType(BandGap))
@@ -549,6 +590,10 @@ class Compound(BaseModel):
     enthalpy_of_fusion = ListType(ModelType(FusionEnthalpy))
     enthalpy_of_vaporization = ListType(ModelType(VaporizationEnthalpy))
     enthalpy_of_sublimation = ListType(ModelType(SublimationEnthalpy))
+    M_n = ListType(ModelType(NumAvgMolecularWeight))
+    M_w = ListType(ModelType(WeightAvgMolecularWeight))
+    dispersity = ListType(ModelType(Dispersity))
+    modulus = ListType(ModelType(Modulus))
 
     def merge(self, other):
         """Merge data from another Compound into this Compound."""

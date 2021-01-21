@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-chemdataextractor.parse.tg
+chemdataextractor.parse.enthalpy_of_vaporization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Enthalpy of vaporization parser
@@ -24,19 +24,17 @@ from .elements import W, I, R, Optional, Any, OneOrMore, Not, ZeroOrMore
 
 log = logging.getLogger(__name__)
 
-enthalpy_of_vaporization_specifier = (Optional(I('^Enthalpy of vaporization$') | I('^Enthalpy of evaporation$')) | \
-                                (Optional((I('enthalpy') | I('heat')) + I('of') + (I('vaporization') | I('evaporation')))).hide() + \
-                                (Optional(I('in')) + Optional(I('the')) + I('range') + Optional(I('of'))).hide() | \
-                                (Optional(lbrct) + (I('ΔH') | I('ΔHv') | I('ΔHe') | I('ΔH_v') | I('ΔH_e') | \
-                                                    I('ΔHvap') | I('ΔH_vap') | I('ΔHevap') | \
-                                                    I('ΔH_evap')) + \
-                                 Optional(rbrct)))('enthalpy_of_vaporization')
+enthalpy_of_vaporization_specifier = ((I('^Enthalpy of vaporization$') | I('^Enthalpy of evaporation$')) | \
+                                      (Optional(lbrct) + (I('ΔH') | I('ΔHv') | I('ΔHe') | I('ΔH_v') | \
+                                                          I('ΔH_e') | I('ΔHvap') | I('ΔH_vap') | \
+                                                          I('ΔHevap') | I('ΔH_evap')) + Optional(rbrct)) | \
+                                      ((I('enthalpy') | I('heat')) + I('of') + (I('vaporization') | I('evaporation')))).hide()('enthalpy_of_vaporization')
 
 #keyword matching for phrases that trigger value scraping
 prefix = (Optional(Optional('has') + Optional(I('a') | I('an')))).hide() + \
          (Optional(I('the'))).hide() + \
          enthalpy_of_vaporization_specifier + \
-         (Optional(I('of') | I('=') | I('equal to') | I('is') | I('is equal to')) | I('was found to be')).hide() + \
+         (Optional(I('of') | I('=') | I('equal to') | (I('is') + Optional(I('between'))) | I('is equal to')) | I('was found to be')).hide() + \
          (Optional(I('in') + I('the') + I('range') + Optional(I('of')) | I('about') | ('around') | I('ca') | I('ca.'))).hide()
 
 #generic list of delimiters
@@ -52,7 +50,7 @@ joined_range = R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?[\-––-−~∼˜]\d+(\.\d
 
 spaced_range = (R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') + Optional(units).hide() +(R('^[\-±–−~∼˜]$') + R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') | R('^[\+\-–−]\d+(\.\d+)?(\(\d\))?$')))('value').add_action(merge)
 
-to_range = (R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') + Optional(units).hide() + (I('to') + R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') | R('^[\+\-–−]\d+(\.\d+)?(\(\d\))?$')))('value').add_action(join)
+to_range = (R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') + Optional(units).hide() + ((I('to') | I('and')) + R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') | R('^[\+\-–−]\d+(\.\d+)?(\(\d\))?$')))('value').add_action(join)
 
 #ranged instances
 enthalpy_of_vaporization_range = (Optional(R('^[\-–−]$')) + (joined_range | spaced_range | to_range))('value').add_action(merge)

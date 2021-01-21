@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-chemdataextractor.parse.tg
+chemdataextractor.parse.enthalpy_of_fusion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Enthalpy of fusion parser. Also encompases enthalpy of melting and enthalpy of crystallization.
@@ -24,19 +24,18 @@ from .elements import W, I, R, Optional, Any, OneOrMore, Not, ZeroOrMore
 
 log = logging.getLogger(__name__)
 
-enthalpy_of_fusion_specifier = (Optional(I('^Enthalpy of fusion$') | I('^Enthalpy of melting$') | I('^Enthalpy of crystallization$')) | \
-                                (Optional((I('enthalpy') | I('heat')) + I('of') + (I('fusion') | I('melting') | I('crystallization')))).hide() + \
-                                (Optional(I('in')) + Optional(I('the')) + I('range') + Optional(I('of'))).hide() | \
+enthalpy_of_fusion_specifier = ((I('^Enthalpy of fusion$') | I('^Enthalpy of melting$') | I('^Enthalpy of crystallization$')) | \
                                 (Optional(lbrct) + (I('ΔH') | I('ΔHf') | I('ΔHm') | I('ΔHc') | I('ΔH_f') | I('ΔH_m') | I('ΔH_c') | \
                                                     I('ΔHfus') | I('ΔH_fus') | I('ΔHcrys') | \
                                                     I('ΔH_crys') | I('ΔHmelt') | I('ΔH_melt')) + \
-                                 Optional(rbrct)))('enthalpy_of_fusion')
+                                 Optional(rbrct)).hide() | \
+                                ((I('enthalpy') | I('heat')) + I('of') + (I('fusion') | I('melting') | I('crystallization') | I('crystalization')))).hide()('enthalpy_of_fusion')
 
 #keyword matching for phrases that trigger value scraping
 prefix = (Optional(Optional('has') + Optional(I('a') | I('an')))).hide() + \
          (Optional(I('the'))).hide() + \
          enthalpy_of_fusion_specifier + \
-         (Optional(I('of') | I('=') | I('equal to') | I('is') | I('is equal to')) | I('was found to be')).hide() + \
+         (Optional(I('of') | I('=') | I('equal to') | (I('is') + Optional(I('between'))) | I('is equal to')) | I('was found to be')).hide() + \
          (Optional(I('in') + I('the') + I('range') + Optional(I('of')) | I('about') | ('around') | I('ca') | I('ca.'))).hide()
 
 #generic list of delimiters
@@ -52,7 +51,7 @@ joined_range = R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?[\-––-−~∼˜]\d+(\.\d
 
 spaced_range = (R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') + Optional(units).hide() +(R('^[\-±–−~∼˜]$') + R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') | R('^[\+\-–−]\d+(\.\d+)?(\(\d\))?$')))('value').add_action(merge)
 
-to_range = (R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') + Optional(units).hide() + (I('to') + R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') | R('^[\+\-–−]\d+(\.\d+)?(\(\d\))?$')))('value').add_action(join)
+to_range = (R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') + Optional(units).hide() + ((I('to') | I('and')) + R('^[\+\-–−]?\d+(\.\d+)?(\(\d\))?$') | R('^[\+\-–−]\d+(\.\d+)?(\(\d\))?$')))('value').add_action(join)
 
 #ranged instances
 enthalpy_of_fusion_range = (Optional(R('^[\-–−]$')) + (joined_range | spaced_range | to_range))('value').add_action(merge)
