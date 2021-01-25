@@ -18,7 +18,7 @@ from lxml.builder import E
 from .common import delim
 from ..utils import first
 from ..model import Compound, UvvisSpectrum, UvvisPeak, QuantumYield, FluorescenceLifetime, MeltingPoint, GlassTransition
-from ..model import ElectrochemicalPotential, IrSpectrum, IrPeak
+from ..model import ElectrochemicalPotential, IrSpectrum, IrPeak, BandGap
 from .actions import join, merge, fix_whitespace
 from .base import BaseParser
 from .cem import chemical_label, label_before_name, chemical_name, chemical_label_phrase, solvent_name, lenient_chemical_label
@@ -207,6 +207,24 @@ glass_transition_cell = (
 
 caption_context = Group(subject_phrase | solvent_phrase | temp_phrase)('caption_context')
 
+####################################################################
+# custom-cde additions
+####################################################################
+
+energy_range = (Optional(R('^[\-–−]$')) + (R('^[\+\-–−]?\d+(\.\d+)?[\-–−]\d+(\.\d+)?$') | (R('^[\+\-–−]?\d+(\.\d+)?$') + R('^[\-–−]$') + R('^[\+\-–−]?\d+(\.\d+)?$'))))('energy_level').add_action(merge)
+energy_value = (Optional(R('^[\-–−]$')) + R('^[\+\-–−]?\d+(\.\d+)?$') + Optional(W('±') + R('^\d+(\.\d+)?$')))('energy_level').add_action(merge)
+energy_level = (energy_range | energy_value)('value')
+energy_level_units = R('eV')('units')
+ebergy_level_with_units = (energy_level + energy_level_units)('energy_level')
+energy_level_with_optional_units = (temp + Optional(temp_units))('energy_level')
+
+
+bandgap_title = R('Eg') | R('Ebandgap') | R('ΔE') | R('Egopt') | R('Egcv')
+bandgap_heading = (bandgap_title.hide() + delims.hide() + Optional(energy_level_units))('bandgap_heading')
+bandgap_cell = energy_level_with_optional_units + ZeroOrMore(delims.hide() + energy_level_with_optional_units)('bandgap_cell')
+
+
+####################################################################
 
 class CompoundHeadingParser(BaseParser):
     """"""
@@ -679,29 +697,74 @@ class CaptionContextParser(BaseParser):
         name = first(result.xpath('./subject_phrase/name/text()'))
         c = Compound(names=[name]) if name else Compound()
         context = {}
+        
         # print(etree.tostring(result[0]))
         solvent = first(result.xpath('./solvent_phrase/name/text()'))
         if solvent is not None:
             context['solvent'] = solvent
+            
         # Melting point shouldn't have contextual temperature
         if context:
             c.melting_points = [MeltingPoint(**context)]
+            
         temp = first(result.xpath('./temp_phrase'))
         if temp is not None:
             context['temperature'] = first(temp.xpath('./temp/value/text()'))
             context['temperature_units'] = first(temp.xpath('./temp/units/text()'))
+            
         # Glass transition temperature shouldn't have contextual temperature
         if context:
             c.glass_transitions = [GlassTransition(**context)]
+            
         temp = first(result.xpath('./temp_phrase'))
         if temp is not None:
             context['temperature'] = first(temp.xpath('./temp/value/text()'))
             context['temperature_units'] = first(temp.xpath('./temp/units/text()'))
+            
         if context:
             c.quantum_yields = [QuantumYield(**context)]
             c.fluorescence_lifetimes = [FluorescenceLifetime(**context)]
             c.electrochemical_potentials = [ElectrochemicalPotential(**context)]
             c.uvvis_spectra = [UvvisSpectrum(**context)]
+            
         if c.serialize():
             # print(c.to_primitive())
             yield c
+            
+####################################################################
+# custom-cde additions
+####################################################################
+
+class BandGapHeadingParser(BaseParser):
+    """"""
+    root = bandgap_heading
+
+    def interpret(self, result, start, end):
+        """"""
+        bandgap_units = first(result.xpath('./units/text()'))
+        c = Compound()
+        if bandgap_units:
+            c.bandgap.append(
+                BandGap(units=bandgap_units)
+            )
+        yield c
+
+
+class BandGapCellParser(BaseParser):
+    """"""
+    root = bandgap_cell
+
+    def interpret(self, result, start, end):
+        """"""
+        c = Compound()
+        for bandgap in result.xpath('./energy_level'):
+            c.bandgap.append(
+                MeltingPoint(
+                    value=first(mp.xpath('./value/text()')),
+                    units=first(mp.xpath('./units/text()'))
+                )
+            )
+        if c.melting_points:
+            yield c
+            
+            

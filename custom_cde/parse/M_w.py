@@ -39,7 +39,8 @@ delim = R('^[:;\.,]$')
 
 #Regex to match units of property
 units = ((I('kDa') | I('Da')) | \
-         ((I('g') | I('kg')) + (R('/') | I('per')) + R('mol')))('units').add_action(merge)
+         ((I('g') | I('kg')) + (R('/') | I('per')) + R('mol')) | \
+        (I('gmol-1') | I('kgmol-1') | I('g•mol-1') | I('kg•mol-1')))('units').add_action(merge)
 
 
 

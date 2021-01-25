@@ -566,6 +566,16 @@ class Modulus(BaseModel):
     units = StringType(contextual=True)
 #     apparatus = StringType(contextual=True)
 
+
+class Crystallinity(BaseModel):
+    """
+    The degree of crystallinity, or relative degree of crystallinity 
+    """
+    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
+    value = StringType()
+    units = StringType(contextual=True)
+#     apparatus = StringType(contextual=True)
+
 ###################################################################
 
 class Compound(BaseModel):
@@ -594,6 +604,7 @@ class Compound(BaseModel):
     M_w = ListType(ModelType(WeightAvgMolecularWeight))
     dispersity = ListType(ModelType(Dispersity))
     modulus = ListType(ModelType(Modulus))
+    crystallinity = ListType(ModelType(Crystallinity))
 
     def merge(self, other):
         """Merge data from another Compound into this Compound."""
