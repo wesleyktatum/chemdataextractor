@@ -462,10 +462,11 @@ class BandGap(BaseModel):
     """
     The band gap energy
     """
-    #TODO: add apparatus (e.g. from cyclic voltammetry vs. calculated)
     value = StringType()
     units = StringType(contextual=True)
-#     apparatus = StringType(contextual=True)
+    solvent = StringType(contextual=True)
+    apparatus = StringType(contextual=True)
+    
 
 class FermiEnergy(BaseModel):
     """
@@ -576,6 +577,37 @@ class Crystallinity(BaseModel):
     units = StringType(contextual=True)
 #     apparatus = StringType(contextual=True)
 
+
+class PCE(BaseModel):
+    """
+    The power conversion efficiency of photovoltaic devices 
+    """
+    value = StringType()
+    units = StringType(contextual=True)
+    
+
+class FF(BaseModel):
+    """
+    The fill factor of photovoltaic devices (unitless property)
+    """
+    value = StringType()
+    
+    
+class Voc(BaseModel):
+    """
+    The open-circuit voltage of photovoltaic devices 
+    """
+    value = StringType()
+    units = StringType(contextual=True)
+    
+    
+class Jsc(BaseModel):
+    """
+    The short-circuit current of photovoltaic devices 
+    """
+    value = StringType()
+    units = StringType(contextual=True)
+
 ###################################################################
 
 class Compound(BaseModel):
@@ -605,6 +637,10 @@ class Compound(BaseModel):
     dispersity = ListType(ModelType(Dispersity))
     modulus = ListType(ModelType(Modulus))
     crystallinity = ListType(ModelType(Crystallinity))
+    pce = ListType(ModelType(PCE))
+    ff = ListType(ModelType(FF))
+    voc = ListType(ModelType(Voc))
+    jsc = ListType(ModelType(Jsc))
 
     def merge(self, other):
         """Merge data from another Compound into this Compound."""

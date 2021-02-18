@@ -24,7 +24,9 @@ from .elements import W, I, R, Optional, Any, OneOrMore, Not, ZeroOrMore
 
 log = logging.getLogger(__name__)
 
-band_gap_specifier = (I('^Band Gap$') | I('^Optical band gap$') | (Optional(lbrct) + (I('EG') | I('Eg') | I('E_g') | I('EBG') | I('E_BG') | I('EBandGap') | I('X')) + Optional(rbrct)) | (Optional (I('optical')) + (I('band gap') | I('bandgap')) + Optional(I('energy')) + Optional(I('level'))))('band_gap').add_action(merge)
+band_gap_specifier = ((I('^Band Gap$') | I('^Optical band gap$')) | \
+                      (Optional(lbrct) + (I('EG') | I('Eg') | I('E_g') | I('EBG') | I('E_BG') | I('EBandGap') | I('X')) + Optional(rbrct)) | \
+                      (Optional (I('optical')) + (I('band gap') | I('bandgap')) + Optional(I('energy')) + Optional(I('level'))))('band_gap').add_action(merge)
 
 #keyword matching for phrases that trigger value scraping
 prefix = (Optional(Optional('has') + Optional(I('a') | I('an')))).hide() + \

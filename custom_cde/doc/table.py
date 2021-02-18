@@ -21,7 +21,12 @@ from ..parse.table import CompoundHeadingParser, CompoundCellParser, UvvisAbsHea
     ElectrochemicalPotentialHeadingParser, ElectrochemicalPotentialCellParser, IrHeadingParser, IrCellParser, \
     SolventCellParser, SolventHeadingParser, SolventInHeadingParser, UvvisAbsEmiQuantumYieldHeadingParser, \
     UvvisAbsEmiQuantumYieldCellParser, MeltingPointHeadingParser, MeltingPointCellParser, GlassTransitionHeadingParser, GlassTransitionCellParser, TempInHeadingParser, \
-    UvvisAbsDisallowedHeadingParser, UvvisEmiQuantumYieldHeadingParser, UvvisEmiQuantumYieldCellParser
+    UvvisAbsDisallowedHeadingParser, UvvisEmiQuantumYieldHeadingParser, UvvisEmiQuantumYieldCellParser, \
+    BandGapHeadingParser, BandGapCellParser, FermiEnergyHeadingParser, FermiEnergyCellParser, \
+    HOMOLevelHeadingParser, HOMOLevelCellParser, LUMOLevelHeadingParser, LUMOLevelCellParser, \
+    PCEHeadingParser, PCECellParser, FFHeadingParser, FFCellParser, VocHeadingParser, VocCellParser, JscHeadingParser, JscCellParser, \
+    MnHeadingParser, MnCellParser, MwHeadingParser, MwCellParser, DispersityHeadingParser, DispersityCellParser
+
 # TODO: Sort out the above import... import module instead
 from ..nlp.tag import NoneTagger
 from ..nlp.tokenize import FineWordTokenizer
@@ -51,7 +56,18 @@ class Table(CaptionedElement):
         (GlassTransitionHeadingParser(), GlassTransitionCellParser()),
         (SolventHeadingParser(), SolventCellParser()),
         (SolventInHeadingParser(),),
-        (TempInHeadingParser(),)
+        (TempInHeadingParser(),),
+        (BandGapHeadingParser(), BandGapCellParser()),
+        (FermiEnergyHeadingParser(), FermiEnergyCellParser()),
+        (HOMOLevelHeadingParser(), HOMOLevelCellParser()),
+        (LUMOLevelHeadingParser(), LUMOLevelCellParser()),
+        (PCEHeadingParser(), PCECellParser()),
+        (FFHeadingParser(), FFCellParser()),
+        (VocHeadingParser(), VocCellParser()),
+        (JscHeadingParser(), JscCellParser()),
+        (MnHeadingParser(), MnCellParser()),
+        (MwHeadingParser(), MwCellParser()),
+        (DispersityHeadingParser(), DispersityCellParser())
     ]
 
     def __init__(self, caption, label=None, headings=None, rows=None, footnotes=None, **kwargs):

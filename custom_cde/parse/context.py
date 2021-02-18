@@ -33,7 +33,9 @@ ir = (R('^(FT-?)?IR|FT-?IS$'))('ir').add_action(join)
 mp = (I('melting') + I('points'))('melting_point').add_action(join)
 tg = (I('glass') + I('transition') + I('temperature'))('glass_transition').add_action(join)
 pp = (I('photophysical') + (I('measurements') | I('properties')))('photophysical_properties').add_action(join)
+
 homo = (I('^HOMO$') | I('EHOMO') | I('E_HOMO') | (I('HOMO') + Optional(I('energy') + Optional(I('level')))))('homo_level').add_action(join).add_action(fix_whitespace)
+
 measurement = Group(quantum_yield | nmr | uvvis | ir | mp | tg | pp | homo)('measurement')
 
 #######################################################

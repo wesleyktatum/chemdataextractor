@@ -42,6 +42,10 @@ from ..parse.M_w import WeightAvgMolecularWeightParser
 from ..parse.dispersity import DispersityParser
 from ..parse.modulus import ModulusParser
 from ..parse.crystallinity import CrystallinityParser
+from ..parse.pce import PCEParser
+from ..parse.ff import FFParser
+from ..parse.jsc import JscParser
+from ..parse.voc import VocParser
 
 from ..nlp.lexicon import ChemLexicon
 from ..nlp.cem import CemTagger, IGNORE_PREFIX, IGNORE_SUFFIX, SPECIALS, SPLITS
@@ -282,12 +286,16 @@ class Heading(Text):
 
 class Paragraph(Text):
 
-    parsers = [CompoundParser(), ChemicalLabelParser(), NmrParser(), IrParser(), UvvisParser(),
-               MpParser(), TgParser(), HOMOParser(), LUMOParser(), BandGapParser(),
+    parsers = [CompoundParser(), ChemicalLabelParser(), NmrParser(), IrParser(),
+               UvvisParser(),
+               MpParser(), TgParser(),
+               HOMOParser(), LUMOParser(), BandGapParser(),
                FermiEnergyParser(), BoilingPointParser(), CorrosionInhibitionParser(),
                FusionEnthalpyParser(), VaporizationEnthalpyParser(), SublimationEnthalpyParser(),
                NumAvgMolecularWeightParser(), WeightAvgMolecularWeightParser(), DispersityParser(),
                ModulusParser(), CrystallinityParser(),
+               PCEParser(), FFParser(), JscParser(),
+               VocParser(),
                ContextParser()]
 
     def _repr_html_(self):
