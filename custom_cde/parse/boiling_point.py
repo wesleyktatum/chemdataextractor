@@ -24,7 +24,9 @@ from .elements import W, I, R, Optional, Any, OneOrMore, Not, ZeroOrMore
 
 log = logging.getLogger(__name__)
 
-boiling_point_specifier = (I('^Tb$') | (Optional(lbrct) + (I('Tb') | I('T_b') | I('b\.?p\.?')) + Optional(rbrct)) | I('boiling') + Optional((I('point')) + Optional(I('temperature')) + Optional(I('range'))))('boiling_point').add_action(merge)
+boiling_point_specifier = (I('^Tb$') | \
+                           (Optional(lbrct) + (I('Tb') | I('T_b') | I('b\.?p\.?')) + Optional(rbrct)) | \
+                           (I('boiling') + Optional(I('point')) + Optional(I('temperature')) + Optional(I('range'))))('boiling_point').add_action(merge)
 
 #keyword matching for phrases that trigger value scraping
 prefix = (Optional(Optional('has') + Optional(I('a') | I('an')))).hide() + \

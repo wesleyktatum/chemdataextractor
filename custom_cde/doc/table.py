@@ -25,7 +25,11 @@ from ..parse.table import CompoundHeadingParser, CompoundCellParser, UvvisAbsHea
     BandGapHeadingParser, BandGapCellParser, FermiEnergyHeadingParser, FermiEnergyCellParser, \
     HOMOLevelHeadingParser, HOMOLevelCellParser, LUMOLevelHeadingParser, LUMOLevelCellParser, \
     PCEHeadingParser, PCECellParser, FFHeadingParser, FFCellParser, VocHeadingParser, VocCellParser, JscHeadingParser, JscCellParser, \
-    MnHeadingParser, MnCellParser, MwHeadingParser, MwCellParser, DispersityHeadingParser, DispersityCellParser
+    MnHeadingParser, MnCellParser, MwHeadingParser, MwCellParser, DispersityHeadingParser, DispersityCellParser, \
+    CrystallinityHeadingParser, CrystallinityCellParser, FusionEnthalpyHeadingParser, FusionEnthalpyCellParser, \
+    SublimationEnthalpyHeadingParser, SublimationEnthalpyCellParser, VaporizationEnthalpyHeadingParser, VaporizationEnthalpyCellParser, \
+    CorrosionInhibitionHeadingParser, CorrosionInhibitionCellParser, ModulusHeadingParser, ModulusCellParser, \
+    BoilingPointHeadingParser, BoilingPointCellParser
 
 # TODO: Sort out the above import... import module instead
 from ..nlp.tag import NoneTagger
@@ -67,7 +71,14 @@ class Table(CaptionedElement):
         (JscHeadingParser(), JscCellParser()),
         (MnHeadingParser(), MnCellParser()),
         (MwHeadingParser(), MwCellParser()),
-        (DispersityHeadingParser(), DispersityCellParser())
+        (DispersityHeadingParser(), DispersityCellParser()),
+        (CrystallinityHeadingParser(), CrystallinityCellParser()), 
+        (FusionEnthalpyHeadingParser(), FusionEnthalpyCellParser()),
+        (SublimationEnthalpyHeadingParser(), SublimationEnthalpyCellParser()), 
+        (VaporizationEnthalpyHeadingParser(), VaporizationEnthalpyCellParser()),
+        (CorrosionInhibitionHeadingParser(), CorrosionInhibitionCellParser()),
+        (ModulusHeadingParser(), ModulusCellParser()),
+        (BoilingPointHeadingParser(), BoilingPointCellParser())
     ]
 
     def __init__(self, caption, label=None, headings=None, rows=None, footnotes=None, **kwargs):

@@ -22,6 +22,9 @@ from ..model import Compound, UvvisSpectrum, UvvisPeak, QuantumYield, Fluorescen
 from ..model import ElectrochemicalPotential, IrSpectrum, IrPeak
 from ..model import BandGap, FermiEnergy, HOMOLevel, LUMOLevel
 from ..model import PCE, FF, Voc, Jsc
+from ..model import NumAvgMolecularWeight, WeightAvgMolecularWeight, Dispersity
+from ..model import Crystallinity, FusionEnthalpy, SublimationEnthalpy, VaporizationEnthalpy
+from ..model import Modulus, CorrosionInhibition, BoilingPoint
 from .actions import join, merge, fix_whitespace
 from .base import BaseParser
 from .cem import chemical_label, label_before_name, chemical_name, chemical_label_phrase, solvent_name, lenient_chemical_label
@@ -193,23 +196,33 @@ temp_range = (Optional(R('^[\-–−]$')) + (R('^[\+\-–−]?\d+(\.\d+)?[\-–�
 temp_value = (Optional(R('^[\-–−]$')) + R('^[\+\-–−]?\d+(\.\d+)?$') + Optional(W('±') + R('^\d+(\.\d+)?$')))('temperature').add_action(merge)
 temp_word = (I('room') + R('^temp(erature)?$') | R('^r\.?t\.?$', re.I))('temperature').add_action(merge)
 temp = (temp_range | temp_value | temp_word)('value')
-temp_units = (W('°') + R('[CFK]') | W('K'))('units').add_action(merge)
+temp_units = ((Optional(R('°')) | Optional(R('º'))) + (R('[C|F|K]') | W('K')))('units').add_action(merge)
 temp_with_units = (temp + temp_units)('temp')
 temp_with_optional_units = (temp + Optional(temp_units))('temp')
 
 temp_phrase = (I('at') + temp_with_units)('temp_phrase')
 
-melting_point_title = R('^T(melt|m\.p|m)$', re.I) | W('T') + R('^(melt|m\.p|m)?$')
+melting_point_title = (R('^T(melt|m\.p|m)$', re.I) | W('T') + R('^(melt|m\.p|m)?$') | (I('Melting') + Optional(I('point')) + Optional(I('temperature')) + Optional(I('range'))))
+
 melting_point_heading = (melting_point_title.hide() + delims.hide() + Optional(temp_units))('melting_point_heading')
+
 melting_point_cell = (
     temp_with_optional_units + ZeroOrMore(delims.hide() + temp_with_optional_units)
 )('melting_point_cell')
 
-glass_transition_title = (R('^T(g\.)$', re.I) | W('T') + R('^(g\.)?$'))
+glass_transition_title = (R('^T(g\.)$', re.I) | W('T') + R('^(g\.)?$') | (I('glass') + I('transition') + Optional(I('point')) + Optional(I('temperature')) + Optional(I('range'))))
+
 glass_transition_heading = (glass_transition_title.hide() + delims.hide() + Optional(temp_units))('glass_transition_heading')
+
 glass_transition_cell = (
     temp_with_optional_units + ZeroOrMore(delims.hide() + temp_with_optional_units)
 )('glass_transition_cell')
+
+boiling_point_title = (I('Tb') | I('T_b') | I('b\.?p\.?') | (I('Boiling') + Optional(I('point')) + Optional(I('temperature')) + Optional(I('range'))))
+
+boiling_point_heading = (boiling_point_title + delims.hide() + Optional(temp_units))('boiling_point_heading')
+
+boiling_point_cell = (temp_with_optional_units + ZeroOrMore(delims.hide() + temp_with_optional_units))('boiling_point_cell')
 
 caption_context = Group(subject_phrase | solvent_phrase | temp_phrase)('caption_context')
 
@@ -220,6 +233,8 @@ caption_context = Group(subject_phrase | solvent_phrase | temp_phrase)('caption_
 #############################################################
 ###########   Molecular Energy Level Properties   ###########
 #############################################################
+
+################## Bandgap, Fermi Energy, HOMO level, LUMO level
 
 energy_level_range = (Optional(R('[\-–−]')) + (R('[\+\-–−]?\d+(\.\d+)?(\(\d\))?[\-––-−~∼˜]\d+(\.\d+)?(\(\d\))?') | (R('[\+\-–−]?\d+(\.\d+)?') + R('[\-–−]') + R('[\+\-–−]?\d+(\.\d+)?'))))('energy_value').add_action(merge)
 
@@ -412,6 +427,8 @@ class LUMOLevelCellParser(BaseParser):
 #############################################################
 ###########   Photovoltaic Properties     ###################
 #############################################################
+
+##################### PCE, FF, Jsc, Voc
 
 opv_range = (Optional(R('[\-–−]')) + (R('[\+\-–−]?\d+(\.\d+)?(\(\d\))?[\-––-−~∼˜]\d+(\.\d+)?(\(\d\))?') | (R('[\+\-–−]?\d+(\.\d+)?') + R('[\-–−]') + R('[\+\-–−]?\d+(\.\d+)?'))))('opv_value').add_action(merge)
 
@@ -609,7 +626,7 @@ class JscCellParser(BaseParser):
 ###########  Physical/Thermodynamic Properties  #############
 #############################################################
 
-# crystallinity, enthalpies, modulus, boiling point
+# crystallinity, enthalpies, modulus
 phys_range = (Optional(R('[\-–−]')) + (R('[\+\-–−]?\d+(\.\d+)?(\(\d\))?[\-––-−~∼˜]\d+(\.\d+)?(\(\d\))?') | (R('[\+\-–−]?\d+(\.\d+)?') + R('[\-–−]') + R('[\+\-–−]?\d+(\.\d+)?'))))('phys_value').add_action(merge)
 
 phys_optional_deviation = (Optional(R('^[\-–−]$')) + R('^[\+\-–−]?\d+(\.\d+)?$') + Optional(W('±') + Optional(R('^\d+(\.\d+)?$'))))('phys_value').add_action(merge)
@@ -631,7 +648,63 @@ xtal_heading = (xtal_title.hide() + Optional(delims).hide() + Optional(lbrct) + 
 
 xtal_cell = (xtal_with_optional_units + ZeroOrMore(delims.hide() + xtal_with_optional_units))('xtal_cell')
 
-######## Enthalpy of Fusion
+######## (Young's) Modulus
+
+modulus_units = (I('Pa') | I('kPa') | I('MPa') | I('GPa'))('modulus_units')
+
+modulus_with_units = (phys_value + Optional(lbrct) + modulus_units + Optional(rbrct))('modulus').add_action(merge)
+
+modulus_with_optional_units = (phys_value + Optional(modulus_units))('modulus')
+
+modulus_title = (I('E') | I('modulus') | I("young's modulus") | I('elastic modulus'))
+
+modulus_heading = (modulus_title.hide() + Optional(delims).hide() + Optional(lbrct) + modulus_units + Optional(rbrct))('modulus_heading')
+
+modulus_cell = (modulus_with_optional_units + ZeroOrMore(delims.hide() + modulus_with_optional_units))('modulus_cell')
+
+######## Enthalpy of...
+
+enthalpy_units = ((I('kJ') | I('J') | I('mJ') | I('Cal') | I('kcal') | I('cal') | I('mcal')) + \
+                  (R('/') | I('per')) + \
+                  (R('kg') | I('g') | I('mg') | I('mol') | I('mmol')))('units').add_action(merge)
+
+    ######## ...Fusion
+fusion_with_units = (phys_value + Optional(lbrct) + enthalpy_units + Optional(rbrct))('fusion').add_action(merge)
+
+fusion_with_optional_units = (phys_value + Optional(enthalpy_units))('fusion')
+
+fusion_title = (I('ΔHf') | I('ΔHm') | I('ΔHc') | I('ΔH_f') | I('ΔH_m') | I('ΔH_c') | I('ΔHfus') | \
+                I('ΔH_fus') | I('ΔHcrys') | I('ΔH_crys') | I('ΔHmelt') | I('ΔH_melt') | \
+                ((I('enthalpy') | I('heat')) + I('of') + (I('fusion') | I('melting') | I('crystallization') | I('crystalization'))))
+
+fusion_heading = (fusion_title.hide() + Optional(delims).hide() + Optional(lbrct) + enthalpy_units + Optional(rbrct))('fusion_heading')
+
+fusion_cell = (fusion_with_optional_units + ZeroOrMore(delims.hide() + fusion_with_optional_units))('fusion_cell')
+
+    ######## ...Sublimation
+sublimation_with_units = (phys_value + Optional(lbrct) + enthalpy_units + Optional(rbrct))('sublimation').add_action(merge)
+
+sublimation_with_optional_units = (phys_value + Optional(enthalpy_units))('sublimation')
+
+sublimation_title = (I('ΔH') | I('ΔHs') | I('ΔH_s') | I('ΔHsub') | I('ΔH_sub') | \
+                     ((I('enthalpy') | I('heat')) + I('of') + (I('sublimation'))))
+
+sublimation_heading = (sublimation_title.hide() + Optional(delims).hide() + Optional(lbrct) + enthalpy_units + Optional(rbrct))('sublimation_heading')
+
+sublimation_cell = (sublimation_with_optional_units + ZeroOrMore(delims.hide() + sublimation_with_optional_units))('sublimation_cell')
+
+    ######## ...Vaporization
+vaporization_with_units = (phys_value + Optional(lbrct) + enthalpy_units + Optional(rbrct))('vaporization').add_action(merge)
+
+vaporization_with_optional_units = (phys_value + Optional(enthalpy_units))('vaporization')
+
+vaporization_title = (I('ΔHv') | I('ΔHe') | I('ΔH_v') | I('ΔH_e') | I('ΔHvap') | I('ΔH_vap') | \
+                     I('ΔHevap') | I('ΔH_evap') | \
+                     ((I('enthalpy') | I('heat')) + I('of') + (I('vaporization') | I('evaporation'))))
+
+vaporization_heading = (vaporization_title.hide() + Optional(delims).hide() + Optional(lbrct) + enthalpy_units + Optional(rbrct))('vaporization_heading')
+
+vaporization_cell = (vaporization_with_optional_units + ZeroOrMore(delims.hide() + vaporization_with_optional_units))('vaporization_cell')
 
 
 class CrystallinityHeadingParser(BaseParser):
@@ -645,7 +718,7 @@ class CrystallinityHeadingParser(BaseParser):
         c = Compound()
         if xtal_units:
             c.crystallinity.append(
-                Crystallinity(units=mn_units)
+                Crystallinity(units=xtal_units)
             )
         yield c
 
@@ -660,11 +733,147 @@ class CrystallinityCellParser(BaseParser):
         for xtal in result.xpath('./xtal'):
             c.crystallinity.append(
                 Crystallinity(
-                    value=first(pce.xpath('./phys_value/text()')),
-                    units=first(pce.xpath('./xtal_units/text()'))
+                    value=first(xtal.xpath('./phys_value/text()')),
+                    units=first(xtal.xpath('./xtal_units/text()'))
                 )
             )
         if c.crystallinity:
+            yield c
+            
+            
+class ModulusHeadingParser(BaseParser):
+    """"""
+    root = modulus_heading
+            
+    def interpret(self, result, start, end):
+        """"""
+            
+        modulus_units = first(result.xpath('./modulus_units/text()'))
+        c = Compound()
+        if modulus_units:
+            c.modulus.append(
+                Modulus(units=modulus_units)
+            )
+        yield c
+
+
+class ModulusCellParser(BaseParser):
+    """"""
+    root = modulus_cell
+    
+    def interpret(self, result, start, end):
+        """"""        
+        c = Compound()
+        for modulus in result.xpath('./modulus'):
+            c.modulus.append(
+                Modulus(
+                    value=first(modulus.xpath('./phys_value/text()')),
+                    units=first(modulus.xpath('./modulus_units/text()'))
+                )
+            )
+        if c.modulus:
+            yield c
+            
+            
+class FusionEnthalpyHeadingParser(BaseParser):
+    """"""
+    root = fusion_heading
+            
+    def interpret(self, result, start, end):
+        """"""
+            
+        fusion_units = first(result.xpath('./enthalpy_units/text()'))
+        c = Compound()
+        if fusion_units:
+            c.enthalpy_of_fusion.append(
+                FusionEnthalpy(units=fusion_units)
+            )
+        yield c
+
+
+class FusionEnthalpyCellParser(BaseParser):
+    """"""
+    root = fusion_cell
+    
+    def interpret(self, result, start, end):
+        """"""        
+        c = Compound()
+        for fusion in result.xpath('./fusion'):
+            c.enthalpy_of_fusion.append(
+                FusionEnthalpy(
+                    value=first(fusion.xpath('./phys_value/text()')),
+                    units=first(fusion.xpath('./enthaply_units/text()'))
+                )
+            )
+        if c.enthalpy_of_fusion:
+            yield c
+            
+            
+class SublimationEnthalpyHeadingParser(BaseParser):
+    """"""
+    root = sublimation_heading
+            
+    def interpret(self, result, start, end):
+        """"""
+            
+        sublimation_units = first(result.xpath('./enthalpy_units/text()'))
+        c = Compound()
+        if sublimation_units:
+            c.enthalpy_of_sublimation.append(
+                SublimationEnthalpy(units=sublimation_units)
+            )
+        yield c
+
+
+class SublimationEnthalpyCellParser(BaseParser):
+    """"""
+    root = sublimation_cell
+    
+    def interpret(self, result, start, end):
+        """"""        
+        c = Compound()
+        for sublimation in result.xpath('./sublimation'):
+            c.enthalpy_of_sublimation.append(
+                SublimationEnthalpy(
+                    value=first(sublimation.xpath('./phys_value/text()')),
+                    units=first(sublimation.xpath('./enthaply_units/text()'))
+                )
+            )
+        if c.enthalpy_of_sublimation:
+            yield c
+            
+            
+class VaporizationEnthalpyHeadingParser(BaseParser):
+    """"""
+    root = vaporization_heading
+            
+    def interpret(self, result, start, end):
+        """"""
+            
+        vaporization_units = first(result.xpath('./enthalpy_units/text()'))
+        c = Compound()
+        if vaporization_units:
+            c.enthalpy_of_vaporization.append(
+                VaporizationEnthalpy(units=vaporization_units)
+            )
+        yield c
+
+
+class VaporizationEnthalpyCellParser(BaseParser):
+    """"""
+    root = vaporization_cell
+    
+    def interpret(self, result, start, end):
+        """"""        
+        c = Compound()
+        for vaporization in result.xpath('./vaporization'):
+            c.enthalpy_of_vaporization.append(
+                VaporizationEnthalpy(
+                    value=first(vaporization.xpath('./phys_value/text()')),
+                    units=first(vaporization.xpath('./enthaply_units/text()'))
+                )
+            )
+        if c.enthalpy_of_vaporization:
             yield c
 
 
@@ -748,8 +957,8 @@ class MnCellParser(BaseParser):
         for mn in result.xpath('./mn'):
             c.M_n.append(
                 NumAvgMolecularWeight(
-                    value=first(pce.xpath('./weight_value/text()')),
-                    units=first(pce.xpath('./mn_units/text()'))
+                    value=first(mn.xpath('./weight_value/text()')),
+                    units=first(mn.xpath('./mn_units/text()'))
                 )
             )
         if c.M_n:
@@ -782,8 +991,8 @@ class MwCellParser(BaseParser):
         for mw in result.xpath('./mw'):
             c.M_w.append(
                 WeightAvgMolecularWeight(
-                    value=first(pce.xpath('./weight_value/text()')),
-                    units=first(pce.xpath('./mw_units/text()'))
+                    value=first(mw.xpath('./weight_value/text()')),
+                    units=first(mw.xpath('./mw_units/text()'))
                 )
             )
         if c.M_w:
@@ -869,8 +1078,8 @@ class CorrosionInhibitionCellParser(BaseParser):
         for corro in result.xpath('./corro'):
             c.corrosion_inhibition.append(
                 CorrosionInhibition(
-                    value=first(pce.xpath('./corro_value/text()')),
-                    units=first(pce.xpath('./corro_units/text()'))
+                    value=first(corro.xpath('./corro_value/text()')),
+                    units=first(corro.xpath('./corro_units/text()'))
                 )
             )
         if c.corrosion_inhibition:
@@ -1301,12 +1510,47 @@ class GlassTransitionCellParser(BaseParser):
         for tg in result.xpath('./temp'):
             c.glass_transitions.append(
                 GlassTransition(
-                    value=first(mp.xpath('./value/text()')),
-                    units=first(mp.xpath('./units/text()'))
+                    value=first(tg.xpath('./value/text()')),
+                    units=first(tg.xpath('./units/text()'))
                 )
             )
-        if c.glass_transition:
+        if c.glass_transitions:
             yield c
+            
+            
+class BoilingPointHeadingParser(BaseParser):
+    """"""
+    root = boiling_point_heading
+
+    def interpret(self, result, start, end):
+        """"""
+#         print(etree.tostring(result))
+        boiling_point_units = first(result.xpath('./units/text()'))
+        c = Compound()
+        if boiling_point_units:
+            c.boiling_point.append(
+                BoilingPoint(units=boiling_point_units)
+            )
+        yield c
+
+
+class BoilingPointCellParser(BaseParser):
+    """"""
+    root = boiling_point_cell
+
+    def interpret(self, result, start, end):
+        """"""
+        c = Compound()
+        for boil in result.xpath('./temp'):
+            c.boiling_point.append(
+                BoilingPoint(
+                    value=first(boil.xpath('./value/text()')),
+                    units=first(boil.xpath('./units/text()'))
+                )
+            )
+        if c.boiling_point:
+            yield c
+            
 
 class ElectrochemicalPotentialHeadingParser(BaseParser):
     """"""
